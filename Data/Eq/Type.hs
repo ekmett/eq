@@ -16,15 +16,20 @@
 ----------------------------------------------------------------------------
 
 module Data.Eq.Type
-  ( (:=)(..)
+  ( 
+  -- * Leibnizian equality
+    (:=)(..)
+  -- * Equality as an equivalence relation
   , refl
   , trans
   , symm 
   , coerce
+  -- * Lifting equality
   , lift
   , lift2, lift2'
   , lift3, lift3'
 #ifdef LANGUAGE_TypeFamilies
+  -- * Lowering equality
   , lower
   , lower2
   , lower3
@@ -36,31 +41,41 @@ import Control.Category
 
 infixl 4 :=
 
+-- | Leibnizian equality states that two things are equal if you can 
+-- substite one for the other in all contexts
 data a := b = Refl { subst :: forall c. c a -> c b } 
 
+-- | Equality is reflexive
 refl :: a := a
 refl = Refl id
 
 newtype Coerce a = Coerce { uncoerce :: a } 
+
+-- | If two things are equal you can convert one to the other
 coerce :: a := b -> a -> b
 coerce f = uncoerce . subst f . Coerce
 
+-- | Equality forms a category
 instance Category (:=) where
   id = Refl id
   (.) = subst
 
+-- | Equality is transitive
 trans :: a := b -> b := c -> a := c
 trans = (>>>)
 
 newtype Symm p a b = Symm { unsymm :: p b a } 
+-- | Equality is symmetric
 symm :: (a := b) -> (b := a)
 symm a = unsymm (subst a (Symm id))
 
 newtype Lift f a b = Lift { unlift :: f a := f b } 
+-- | You can lift equality into any type constructor
 lift :: a := b -> f a := f b
 lift a = unlift (subst a (Lift id))
 
 newtype Lift2 f c a b = Lift2 { unlift2 :: f a c := f b c }  
+-- | ... in any position
 lift2 :: a := b -> f a c := f b c
 lift2 a = unlift2 (subst a (Lift2 id))
 
@@ -79,12 +94,14 @@ lift3' ab cd ef = lift3 ab . lift2 cd . lift ef
 type family Inj f :: *
 type instance Inj (f a) = a
 newtype Lower a b = Lower { unlower :: Inj a := Inj b }
+-- | Type constructors are injective, so you can lower equality through any type constructor
 lower :: f a := f b -> a := b
 lower eq = unlower (subst eq (Lower id :: Lower (f a) (f a)))
 
 type family Inj2 f :: *
 type instance Inj2 (f a b) = a
 newtype Lower2 a b = Lower2 { unlower2 :: Inj2 a := Inj2 b }
+-- | ... in any position
 lower2 :: f a c := f b c -> a := b
 lower2 eq = unlower2 (subst eq (Lower2 id :: Lower2 (f a c) (f a c)))
 

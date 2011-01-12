@@ -1,8 +1,8 @@
 name:          eq
 category:      Type System
-version:       0.1.0
+version:       0.1.1
 license:       BSD3
-cabal-version: >= 1.2.3
+cabal-version: >= 1.6
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
@@ -12,6 +12,10 @@ copyright:     Copyright (C) 2010-2011 Edward A. Kmett
 synopsis:      Leibnizian equality
 description:   Leibnizian equality
 build-type:    Simple
+
+source-repository head
+  type: git
+  location: git://github.com/ekmett/eq.git
 
 flag TypeFamilies
   default: True
