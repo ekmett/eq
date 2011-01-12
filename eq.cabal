@@ -1,13 +1,13 @@
 name:          eq
 category:      Type System
-version:       0.1.1
+version:       0.1.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
-homepage:      http://comonad.com/reader/
+homepage:      http://github.com/ekmett/eq/
 copyright:     Copyright (C) 2010-2011 Edward A. Kmett
 synopsis:      Leibnizian equality
 description:   Leibnizian equality
