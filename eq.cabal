@@ -1,0 +1,32 @@
+name:          eq
+category:      Type System
+version:       0.1.0
+license:       BSD3
+cabal-version: >= 1.2.3
+license-file:  LICENSE
+author:        Edward A. Kmett
+maintainer:    Edward A. Kmett <ekmett@gmail.com>
+stability:     provisional
+homepage:      http://comonad.com/reader/
+copyright:     Copyright (C) 2010-2011 Edward A. Kmett
+synopsis:      Leibnizian equality
+description:   Leibnizian equality
+build-type:    Simple
+
+flag TypeFamilies
+  default: True
+
+library
+  build-depends: 
+    base >= 4 && < 5
+
+  extensions: CPP
+
+  if flag(TypeFamilies)
+    cpp-options: -DLANGUAGE_TypeFamilies
+    extensions: TypeFamilies
+
+  exposed-modules:
+    Data.Eq.Type
+
+  ghc-options: -Wall 
