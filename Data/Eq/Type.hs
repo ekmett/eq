@@ -1,7 +1,7 @@
 {-# LANGUAGE Rank2Types, TypeOperators #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Data.Type.Eq
+-- Module      :  Data.Eq.Type
 -- Copyright   :  (C) 2011 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
@@ -50,7 +50,6 @@ refl :: a := a
 refl = Refl id
 
 newtype Coerce a = Coerce { uncoerce :: a } 
-
 -- | If two things are equal you can convert one to the other
 coerce :: a := b -> a -> b
 coerce f = uncoerce . subst f . Coerce
