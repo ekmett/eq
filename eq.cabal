@@ -1,6 +1,6 @@
 name:          eq
 category:      Type System
-version:       0.2.0
+version:       0.3.0
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -8,9 +8,9 @@ author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/eq/
-copyright:     Copyright (C) 2011 Edward A. Kmett, Dan Doel
-synopsis:      GADT-based type-level equality
-description:   GADT-based type-level equality
+copyright:     Copyright (C) 2011 Edward A. Kmett
+synopsis:      Leibnizian equality
+description:   Leibnizian equality
 build-type:    Simple
 
 source-repository head
@@ -22,7 +22,7 @@ library
     base >= 4 && < 5,
     semigroupoids >= 1.1.1 && < 1.2.0
 
-  extensions: GADTs, TypeOperators
+  extensions: TypeOperators
 
   exposed-modules:
     Data.Eq.Type
