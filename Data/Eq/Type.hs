@@ -39,6 +39,7 @@ module Data.Eq.Type
 import Prelude ()
 import Control.Category 
 import Data.Semigroupoid
+import Data.Groupoid
 
 infixl 4 :=
 
@@ -62,6 +63,9 @@ instance Category (:=) where
 
 instance Semigroupoid (:=) where
   o = subst
+
+instance Groupoid (:=) where
+  inv = symm
 
 -- | Equality is transitive
 trans :: a := b -> b := c -> a := c
