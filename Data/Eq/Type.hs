@@ -45,7 +45,7 @@ infixl 4 :=
 
 -- | Leibnizian equality states that two things are equal if you can 
 -- substite one for the other in all contexts
-data a := b = Refl { subst :: forall c. c a -> c b } 
+data (a :: k) := (b :: k) = Refl { subst :: forall (c :: k -> *). c a -> c b }
 
 -- | Equality is reflexive
 refl :: a := a
