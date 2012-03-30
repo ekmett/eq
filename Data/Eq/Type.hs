@@ -45,7 +45,7 @@ infixl 4 :=
 
 -- | Leibnizian equality states that two things are equal if you can 
 -- substite one for the other in all contexts
-data (a :: k) := (b :: k) = Refl { subst :: forall (c :: k -> *). c a -> c b }
+data a := b = Refl { subst :: forall c. c a -> c b }
 
 -- | Equality is reflexive
 refl :: a := a
@@ -81,7 +81,7 @@ newtype Lift f a b = Lift { unlift :: f a := f b }
 lift :: a := b -> f a := f b
 lift a = unlift (subst a (Lift id))
 
-newtype Lift2 f c a b = Lift2 { unlift2 :: f a c := f b c }  
+newtype Lift2 f c a b = Lift2 { unlift2 :: f a c := f b c }
 -- | ... in any position
 lift2 :: a := b -> f a c := f b c
 lift2 a = unlift2 (subst a (Lift2 id))
@@ -89,7 +89,7 @@ lift2 a = unlift2 (subst a (Lift2 id))
 lift2' :: a := b -> c := d -> f a c := f b d
 lift2' ab cd = lift2 ab . lift cd
 
-newtype Lift3 f c d a b = Lift3 { unlift3 :: f a c d := f b c d } 
+newtype Lift3 f c d a b = Lift3 { unlift3 :: f a c d := f b c d }
 lift3 :: a := b -> f a c d := f b c d
 lift3 a = unlift3 (subst a (Lift3 id))
 
