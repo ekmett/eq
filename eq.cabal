@@ -1,6 +1,6 @@
 name:          eq
 category:      Type System
-version:       0.3.4.3
+version:       0.3.5
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -17,8 +17,12 @@ source-repository head
   type: git
   location: git://github.com/ekmett/eq.git
 
+flag TypeFamilies
+  default: True
+  manual: False
+
 library
-  other-extensions: 
+  other-extensions:
     CPP
     Rank2Types
     TypeOperators
@@ -30,5 +34,9 @@ library
 
   exposed-modules:
     Data.Eq.Type
+
+  if flag(TypeFamilies)
+    extensions: TypeFamilies
+    cpp-options: -DLANGUAGE_TypeFamilies
 
   ghc-options: -Wall
