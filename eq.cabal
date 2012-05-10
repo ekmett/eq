@@ -13,6 +13,7 @@ copyright:     Copyright (C) 2011 Edward A. Kmett
 synopsis:      Leibnizian equality
 description:   Leibnizian equality
 build-type:    Simple
+
 extra-source-files: .travis.yml
 
 source-repository head
