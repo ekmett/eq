@@ -40,7 +40,7 @@ library
   exposed-modules:
     Data.Eq.Type
 
-  if impl(ghc >= 7.0)
+  if impl(ghc >= 7.0) && impl(ghc < 7.6)
     extensions: TypeFamilies
     cpp-options: -DLANGUAGE_TypeFamilies
 
