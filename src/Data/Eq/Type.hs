@@ -1,4 +1,8 @@
 {-# LANGUAGE CPP, Rank2Types, TypeOperators #-}
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE Trustworthy #-}
+#endif
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Eq.Type
@@ -9,20 +13,20 @@
 -- Stability   :  provisional
 -- Portability :  rank2 types, type operators, (optional) type families
 --
--- Leibnizian equality. Injectivity in the presence of type families 
+-- Leibnizian equality. Injectivity in the presence of type families
 -- is provided by a generalization of a trick by Oleg Kiselyv posted here:
 --
 -- <http://www.haskell.org/pipermail/haskell-cafe/2010-May/077177.html>
 ----------------------------------------------------------------------------
 
 module Data.Eq.Type
-  ( 
+  (
   -- * Leibnizian equality
     (:=)(..)
   -- * Equality as an equivalence relation
   , refl
   , trans
-  , symm 
+  , symm
   , coerce
   -- * Lifting equality
   , lift
@@ -37,13 +41,13 @@ module Data.Eq.Type
   ) where
 
 import Prelude ()
-import Control.Category 
+import Control.Category
 import Data.Semigroupoid
 import Data.Groupoid
 
 infixl 4 :=
 
--- | Leibnizian equality states that two things are equal if you can 
+-- | Leibnizian equality states that two things are equal if you can
 -- substite one for the other in all contexts
 data a := b = Refl { subst :: forall c. c a -> c b }
 
@@ -51,7 +55,7 @@ data a := b = Refl { subst :: forall c. c a -> c b }
 refl :: a := a
 refl = Refl id
 
-newtype Coerce a = Coerce { uncoerce :: a } 
+newtype Coerce a = Coerce { uncoerce :: a }
 -- | If two things are equal you can convert one to the other
 coerce :: a := b -> a -> b
 coerce f = uncoerce . subst f . Coerce
@@ -71,12 +75,12 @@ instance Groupoid (:=) where
 trans :: a := b -> b := c -> a := c
 trans = (>>>)
 
-newtype Symm p a b = Symm { unsymm :: p b a } 
+newtype Symm p a b = Symm { unsymm :: p b a }
 -- | Equality is symmetric
 symm :: (a := b) -> (b := a)
 symm a = unsymm (subst a (Symm id))
 
-newtype Lift f a b = Lift { unlift :: f a := f b } 
+newtype Lift f a b = Lift { unlift :: f a := f b }
 -- | You can lift equality into any type constructor
 lift :: a := b -> f a := f b
 lift a = unlift (subst a (Lift id))
