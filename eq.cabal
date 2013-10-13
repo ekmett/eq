@@ -1,6 +1,6 @@
 name:          eq
 category:      Type System
-version:       3.1.1
+version:       4.0
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -34,8 +34,7 @@ library
 
   build-depends:
     base          == 4.*,
-    semigroupoids >= 3,
-    groupoids     >= 3
+    semigroupoids == 4.*
 
   exposed-modules:
     Data.Eq.Type
