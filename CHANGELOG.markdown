@@ -1,3 +1,7 @@
+4.0
+---
+* Updated to work with `semigroupoids` 4.0
+
 3.1.1
 -----
 * Claim to be `Trustworthy`
