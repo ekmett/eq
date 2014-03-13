@@ -2,11 +2,14 @@
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+{-# LANGUAGE RoleAnnotations #-}
+#endif
 
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Eq.Type
--- Copyright   :  (C) 2011 Edward Kmett
+-- Copyright   :  (C) 2011-2014 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
@@ -50,6 +53,9 @@ infixl 4 :=
 -- | Leibnizian equality states that two things are equal if you can
 -- substite one for the other in all contexts
 data a := b = Refl { subst :: forall c. c a -> c b }
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+type role (:=) nominal nominal
+#endif
 
 -- | Equality is reflexive
 refl :: a := a

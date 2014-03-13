@@ -1,3 +1,7 @@
+4.0.1
+-----
+* Provided an explicit nominal `RoleAnnotation`.
+
 4.0
 ---
 * Updated to work with `semigroupoids` 4.0
