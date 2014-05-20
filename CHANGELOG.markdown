@@ -1,7 +1,10 @@
+4.0.2
+-----
+* Made := kind polymorphic.
+
 4.0.1
 -----
 * Provided an explicit nominal `RoleAnnotation`.
-* Made := kind polymorphic.
 
 4.0
 ---
