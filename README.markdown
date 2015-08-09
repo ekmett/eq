@@ -1,7 +1,7 @@
 eq
 ==
 
-[![Build Status](https://secure.travis-ci.org/ekmett/eq.png?branch=master)](http://travis-ci.org/ekmett/eq)
+[![Hackage](https://img.shields.io/hackage/v/eq.svg)](https://hackage.haskell.org/package/eq) [![Build Status](https://secure.travis-ci.org/ekmett/eq.png?branch=master)](http://travis-ci.org/ekmett/eq
 
 This package provides a data type that witnesses equality between two types using Leibnizian equality.
 
