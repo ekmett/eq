@@ -1,3 +1,7 @@
+4.1
+---
+* We can remove the `Trustworthy` claim and infer as `Safe` on modern GHCs.
+
 4.0.2
 -----
 * Made := kind polymorphic.
