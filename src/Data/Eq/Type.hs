@@ -51,7 +51,7 @@ import Data.Groupoid
 infixl 4 :=
 
 -- | Leibnizian equality states that two things are equal if you can
--- substite one for the other in all contexts
+-- substitute one for the other in all contexts
 data a := b = Refl { subst :: forall c. c a -> c b }
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
 type role (:=) nominal nominal
