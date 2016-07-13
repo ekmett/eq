@@ -5,6 +5,11 @@
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
 {-# LANGUAGE RoleAnnotations #-}
 #endif
+#if defined(__GLASGOW_HASKELL__) && MIN_VERSION_base(4,7,0)
+#define HAS_DATA_TYPE_EQUALITY 1
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -41,12 +46,22 @@ module Data.Eq.Type
   , lower2
   , lower3
 #endif
+#ifdef HAS_DATA_TYPE_EQUALITY
+  -- * ':~:' equivalence
+  -- | "Data.Type.Equality" GADT definition is equivalent in power
+  , fromLeibniz
+  , toLeibniz
+#endif
   ) where
 
 import Prelude (flip)
 import Control.Category
 import Data.Semigroupoid
 import Data.Groupoid
+
+#ifdef HAS_DATA_TYPE_EQUALITY
+import qualified Data.Type.Equality as Eq
+#endif
 
 infixl 4 :=
 
@@ -127,4 +142,12 @@ newtype Lower3 a b = Lower3 { unlower3 :: Inj3 a := Inj3 b }
 lower3 :: f a c d := f b c d -> a := b
 lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 (f a c d) (f a c d)))
 
+#endif
+
+#ifdef HAS_DATA_TYPE_EQUALITY
+fromLeibniz :: a := b -> a Eq.:~: b
+fromLeibniz a = subst a Eq.Refl
+
+toLeibniz :: a Eq.:~: b -> a := b
+toLeibniz Eq.Refl = refl
 #endif
