@@ -17,7 +17,7 @@
 -- Portability :  rank2 types, type operators, (optional) type families
 --
 -- Leibnizian equality. Injectivity in the presence of type families
--- is provided by a generalization of a trick by Oleg Kiselyv posted here:
+-- is provided by a generalization of a trick by Oleg Kiselyov posted here:
 --
 -- <http://www.haskell.org/pipermail/haskell-cafe/2010-May/077177.html>
 ----------------------------------------------------------------------------
