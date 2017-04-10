@@ -67,7 +67,7 @@ infixl 4 :=
 
 -- | Leibnizian equality states that two things are equal if you can
 -- substitute one for the other in all contexts
-data a := b = Refl { subst :: forall c. c a -> c b }
+newtype a := b = Refl { subst :: forall c. c a -> c b }
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
 type role (:=) nominal nominal
 #endif
