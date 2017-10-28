@@ -47,19 +47,24 @@ module Data.Eq.Type
   , lower3
 #endif
 #ifdef HAS_DATA_TYPE_EQUALITY
-  -- * ':~:' equivalence
+  -- * 'Eq.:~:' equivalence
   -- | "Data.Type.Equality" GADT definition is equivalent in power
   , fromLeibniz
   , toLeibniz
+
+  -- * 'Co.Coercion' conversion
+  -- | Leibnizian equality can be converted to representational equality
+  , reprLeibniz
 #endif
   ) where
 
-import Prelude (flip)
+import Prelude (Maybe(..), flip)
 import Control.Category
 import Data.Semigroupoid
 import Data.Groupoid
 
 #ifdef HAS_DATA_TYPE_EQUALITY
+import qualified Data.Type.Coercion as Co
 import qualified Data.Type.Equality as Eq
 #endif
 
@@ -153,4 +158,13 @@ fromLeibniz a = subst a Eq.Refl
 
 toLeibniz :: a Eq.:~: b -> a := b
 toLeibniz Eq.Refl = refl
+
+instance Eq.TestEquality ((:=) a) where
+  testEquality fa fb = Just (fromLeibniz (trans (symm fa) fb))
+
+reprLeibniz :: a := b -> Co.Coercion a b
+reprLeibniz a = subst a Co.Coercion
+
+instance Co.TestCoercion ((:=) a) where
+  testCoercion fa fb = Just (reprLeibniz (trans (symm fa) fb))
 #endif
