@@ -1,5 +1,11 @@
 4.1
 ---
+* Add `TestEquality` and `TestCoercion` instances for `(:=)`.
+* Add `fromLeibniz` and `toLeibniz` functions for converting between `(:~:)`
+  (from `Data.Type.Equality`) and `(:=)`.
+* Add a `reprLeibniz` function to convert `(:=)` to a `Coercion`
+  (i.e., representational equality).
+* Make `(:=)` a newtype.
 * We can remove the `Trustworthy` claim and infer as `Safe` on modern GHCs.
 
 4.0.2
