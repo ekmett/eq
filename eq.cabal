@@ -11,8 +11,17 @@ homepage:      http://github.com/ekmett/eq/
 bug-reports:   http://github.com/ekmett/eq/issues
 copyright:     Copyright (C) 2011-2013 Edward A. Kmett
 synopsis:      Leibnizian equality
-description:   Leibnizian equality
+description:   Leibnizian equality.
 build-type:    Simple
+tested-with:   GHC == 7.0.4
+             , GHC == 7.2.2
+             , GHC == 7.4.2
+             , GHC == 7.6.3
+             , GHC == 7.8.4
+             , GHC == 7.10.3
+             , GHC == 8.0.2
+             , GHC == 8.2.2
+             , GHC == 8.4.1
 
 extra-source-files:
   .ghci
