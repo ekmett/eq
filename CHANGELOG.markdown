@@ -1,5 +1,5 @@
-next
-----
+4.2 [2018.04.24]
+----------------
 * Make `lower`, `lower2`, and `lower3` in `Data.Eq.Type` poly-kinded.
 * Introduce the `Data.Eq.Type.Hetero` module, which exposes `(:==)`, a
   heterogeneously kinded version of `(:=)`. This module is only available
