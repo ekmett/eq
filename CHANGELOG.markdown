@@ -1,3 +1,7 @@
+next
+----
+* Make `lower`, `lower2`, and `lower3` in `Data.Eq.Type` poly-kinded.
+
 4.1
 ---
 * Add `TestEquality` and `TestCoercion` instances for `(:=)`.
