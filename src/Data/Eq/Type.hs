@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP, Rank2Types, TypeOperators #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 706
+#define LANGUAGE_PolyKinds
 {-# LANGUAGE PolyKinds #-}
 #endif
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
@@ -127,29 +128,36 @@ lift3' :: a := b -> c := d -> e := f -> g a c e := g b d f
 lift3' ab cd ef = lift3 ab `subst` lift2 cd `subst` lift ef
 
 #ifdef LANGUAGE_TypeFamilies
-type family Inj (f :: *) :: *
-type instance Inj (f a) = a
-newtype Lower a b = Lower { unlower :: Inj a := Inj b }
--- | Type constructors are injective, so you can lower equality through any type constructor
-lower :: forall (a :: *) (b :: *) (f :: * -> *). f a := f b -> a := b
-lower eq = unlower (subst eq (Lower refl :: Lower (f a) (f a)))
+# ifdef LANGUAGE_PolyKinds
+type family Inj  (f :: j -> k)           (a :: k) :: j
+type family Inj2 (f :: i -> j -> k)      (a :: k) :: i
+type family Inj3 (f :: h -> i -> j -> k) (a :: k) :: h
+# else
+type family Inj  (f :: * -> *)           (a :: *) :: *
+type family Inj2 (f :: * -> * -> *)      (a :: *) :: *
+type family Inj3 (f :: * -> * -> * -> *) (a :: *) :: *
+# endif
 
-type family Inj2 (f :: *) :: *
-type instance Inj2 (f a (b :: *)) = a
-newtype Lower2 a b = Lower2 { unlower2 :: Inj2 a := Inj2 b }
--- | ... in any position
-lower2 :: forall (a :: *) (b :: *) (c :: *) (f :: * -> * -> *).
-    f a c := f b c -> a := b
-lower2 eq = unlower2 (subst eq (Lower2 refl :: Lower2 (f a c) (f a c)))
+type instance Inj  f (f a)     = a
+type instance Inj2 f (f a b)   = a
+type instance Inj3 f (f a b c) = a
 
-type family Inj3 (f :: *) :: *
-type instance Inj3 (f a (b :: *) (c :: *)) = a
-newtype Lower3 a b = Lower3 { unlower3 :: Inj3 a := Inj3 b }
--- | But unfortunately these definitions aren't polykinded. Everything is just a star.
-lower3 :: forall (a :: *) (b :: *) (c :: *) (d :: *) (f :: * -> * -> * -> *).
-    f a c d := f b c d -> a := b
-lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 (f a c d) (f a c d)))
+newtype Lower  f a b = Lower  { unlower  :: Inj  f a := Inj  f b }
+newtype Lower2 f a b = Lower2 { unlower2 :: Inj2 f a := Inj2 f b }
+newtype Lower3 f a b = Lower3 { unlower3 :: Inj3 f a := Inj3 f b }
 
+-- | Type constructors are injective, so you can lower equality through any
+-- type constructor ...
+lower :: forall a b f. f a := f b -> a := b
+lower eq = unlower (subst eq (Lower refl :: Lower f (f a) (f a)))
+
+-- | ... in any position ...
+lower2 :: forall a b c f. f a c := f b c -> a := b
+lower2 eq = unlower2 (subst eq (Lower2 refl :: Lower2 f (f a c) (f a c)))
+
+-- | ... these definitions are poly-kinded on GHC 7.6 and up.
+lower3 :: forall a b c d f. f a c d := f b c d -> a := b
+lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 f (f a c d) (f a c d)))
 #endif
 
 #ifdef HAS_DATA_TYPE_EQUALITY
