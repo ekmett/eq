@@ -167,43 +167,50 @@ lift3 f = unlift3 $ hsubst f $ Lift3 refl
 lift3' :: a :== b -> c :== d -> e :== f -> g a c e :== g b d f
 lift3' ab cd ef = unpush $ unpush (lift3 ab `hsubst` Push (lift2 cd)) `hsubst` Push (lift ef)
 
-newtype Lower :: forall (j :: Type). j -> forall (k :: Type). k -> Type where
-  Lower :: forall (j :: Type) (k :: Type) (a :: j) (b :: k).
-           { unlower :: Inj a :== Inj (MassageKind j b) } -> Lower a b
+newtype Lower :: Type
+              -> forall (j :: Type). j
+              -> forall (k :: Type). k -> Type where
+  Lower :: forall (i :: Type) (j :: Type) (k :: Type) (a :: j) (b :: k).
+           { unlower :: Inj i a :== Inj i (MassageKind j b) } -> Lower i a b
 
-type family Inj (a :: k) :: k where
-  Inj (f a) = a
-  Inj _     = Any
+type family Inj (j :: Type) (a :: k) :: j where
+  Inj j (f (a :: j)) = a
+  Inj _ _            = Any
 
 -- | Type constructors are injective, so you can lower equality through any type constructor.
-lower :: forall (k :: Type) (f :: k -> k) (a :: k) (b :: k).
+lower :: forall (j :: Type) (k :: Type) (f :: j -> k) (a :: j) (b :: j).
          f a :== f b -> a :== b
-lower f = unlower $ hsubst f (Lower refl :: Lower (f a) (f a))
+lower f = unlower $ hsubst f (Lower refl :: Lower j (f a) (f a))
 
-newtype Lower2 :: forall (j :: Type). j -> forall (k :: Type). k -> Type where
-  Lower2 :: forall (j :: Type) (k :: Type) (a :: j) (b :: k).
-            { unlower2 :: Inj2 a :== Inj2 (MassageKind j b) } -> Lower2 a b
+newtype Lower2 :: Type
+               -> forall (j :: Type). j
+               -> forall (k :: Type). k -> Type where
+  Lower2 :: forall (i :: Type) (j :: Type) (k :: Type) (a :: j) (b :: k).
+            { unlower2 :: Inj2 i a :== Inj2 i (MassageKind j b) } -> Lower2 i a b
 
-type family Inj2 (a :: k) :: k where
-  Inj2 (f a b) = a
-  Inj2 _       = Any
+type family Inj2 (j :: Type) (a :: k) :: j where
+  Inj2 j (f (a :: j) b) = a
+  Inj2 _ _              = Any
 
-lower2 :: forall (j :: Type) (k :: Type) (f :: j -> k -> j) (a :: j) (b :: j) (c :: k).
+lower2 :: forall (i :: Type) (j :: Type) (k :: Type)
+                 (f :: i -> j -> k) (a :: i) (b :: i) (c :: j).
           f a c :== f b c -> a :== b
-lower2 f = unlower2 $ hsubst f (Lower2 refl :: Lower2 (f a c) (f a c))
+lower2 f = unlower2 $ hsubst f (Lower2 refl :: Lower2 i (f a c) (f a c))
 
-newtype Lower3 :: forall (j :: Type). j -> forall (k :: Type). k -> Type where
-  Lower3 :: forall (j :: Type) (k :: Type) (a :: j) (b :: k).
-            { unlower3 :: Inj3 a :== Inj3 (MassageKind j b) } -> Lower3 a b
+newtype Lower3 :: Type
+               -> forall (j :: Type). j
+               -> forall (k :: Type). k -> Type where
+  Lower3 :: forall (i :: Type) (j :: Type) (k :: Type) (a :: j) (b :: k).
+            { unlower3 :: Inj3 i a :== Inj3 i (MassageKind j b) } -> Lower3 i a b
 
-type family Inj3 (a :: k) :: k where
-  Inj3 (f a b c) = a
-  Inj3 _         = Any
+type family Inj3 (j :: Type) (a :: k) :: j where
+  Inj3 j (f (a :: j) b c) = a
+  Inj3 _ _                = Any
 
-lower3 :: forall (i :: Type) (j :: Type) (k :: Type)
-                 (f :: i -> j -> k -> i) (a :: i) (b :: i) (c :: j) (d :: k).
+lower3 :: forall (h :: Type) (i :: Type) (j :: Type) (k :: Type)
+                 (f :: h -> i -> j -> k) (a :: h) (b :: h) (c :: i) (d :: j).
           f a c d :== f b c d -> a :== b
-lower3 f = unlower3 $ hsubst f (Lower3 refl :: Lower3 (f a c d) (f a c d))
+lower3 f = unlower3 $ hsubst f (Lower3 refl :: Lower3 h (f a c d) (f a c d))
 
 newtype Flay :: forall (j :: Type).
                 (j -> j -> Type) -> j
