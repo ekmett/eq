@@ -1,6 +1,9 @@
 next
 ----
 * Make `lower`, `lower2`, and `lower3` in `Data.Eq.Type` poly-kinded.
+* Introduce the `Data.Eq.Type.Hetero` module, which exposes `(:==)`, a
+  heterogeneously kinded version of `(:=)`. This module is only available
+  on GHC 8.2 and later.
 
 4.1
 ---
