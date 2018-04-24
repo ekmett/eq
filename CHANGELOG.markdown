@@ -1,3 +1,9 @@
+next
+----
+* Introduce the `Data.Eq.Type.Hetero` module, which exposes `(:==)`, a
+  heterogeneously kinded version of `(:=)`. This module is only available
+  on GHC 8.2 and later.
+
 4.1
 ---
 * Add `TestEquality` and `TestCoercion` instances for `(:=)`.
