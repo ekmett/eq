@@ -15,7 +15,7 @@
 -- Stability   :  provisional
 -- Portability :  GHC
 --
--- Leibnizian equality à la "Data.Eq.Type", generalized to be heterogenous
+-- Leibnizian equality à la "Data.Eq.Type", generalized to be heterogeneous
 -- using higher-rank kinds.
 --
 -- This module is only exposed on GHC 8.2 and later.
