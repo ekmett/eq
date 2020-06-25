@@ -2,7 +2,7 @@ name:          eq
 category:      Type System
 version:       4.2
 license:       BSD3
-cabal-version: >= 1.6
+cabal-version: >= 1.10
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
@@ -51,11 +51,12 @@ library
     Data.Eq.Type
 
   if impl(ghc >= 7.0)
-    extensions: TypeFamilies
+    default-extensions: TypeFamilies
     cpp-options: -DLANGUAGE_TypeFamilies
 
   if impl(ghc >= 8.2)
     exposed-modules: Data.Eq.Type.Hetero
 
   ghc-options: -Wall
+  default-language: Haskell2010
   hs-source-dirs: src
