@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Allow building with GHC 9.0.
+
 4.2 [2018.04.24]
 ----------------
 * Make `lower`, `lower2`, and `lower3` in `Data.Eq.Type` poly-kinded.

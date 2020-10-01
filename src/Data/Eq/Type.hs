@@ -59,7 +59,7 @@ module Data.Eq.Type
 #endif
   ) where
 
-import Prelude (Maybe(..), flip)
+import Prelude (Maybe(..))
 import Control.Category
 import Data.Semigroupoid
 import Data.Groupoid
@@ -90,17 +90,17 @@ coerce f = uncoerce . subst f . Coerce
 -- | Equality forms a category
 instance Category (:=) where
   id = Refl id
-  (.) = subst
+  bc . ab = subst bc ab
 
 instance Semigroupoid (:=) where
-  o = subst
+  bc `o` ab = subst bc ab
 
 instance Groupoid (:=) where
   inv = symm
 
 -- | Equality is transitive
 trans :: a := b -> b := c -> a := c
-trans = flip subst
+trans ab bc = subst bc ab
 
 newtype Symm p a b = Symm { unsymm :: p b a }
 -- | Equality is symmetric
