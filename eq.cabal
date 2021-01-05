@@ -29,7 +29,6 @@ tested-with:   GHC == 7.0.4
 extra-source-files:
   .gitignore
   .vim.custom
-  .travis.yml
   CHANGELOG.markdown
   README.markdown
 
