@@ -1,3 +1,23 @@
+4.3 [????.??.??]
+----------------
+* Generalize the types of `Data.Type.Eq.lower{,2,3}`:
+
+  ```diff
+  -lower :: f a := f b -> a := b
+  +lower :: f a := g b -> a := b
+
+  -lower2 :: f a c := f b c  -> a := b
+  +lower2 :: f a c := g b c' -> a := b
+
+  -lower3 :: f a c d := f b c  d  -> a := b
+  +lower3 :: f a c d := g b c' d' -> a := b
+  ```
+
+  The types of `Data.Type.Eq.Hetero.lower{,2,3}` have been generalized
+  analogously.
+* `Data.Type.Eq.Hetero.lower{,2,3}` now have the same order of type variables
+  as their counterparts in `Data.Type.Eq`.
+
 4.2.1 [2020.10.01]
 ------------------
 * Allow building with GHC 9.0.
