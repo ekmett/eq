@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, Rank2Types, TypeOperators #-}
+{-# LANGUAGE CPP, Rank2Types, ScopedTypeVariables, TypeOperators #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 706
 #define LANGUAGE_PolyKinds
 {-# LANGUAGE PolyKinds #-}
@@ -9,7 +9,6 @@
 #if defined(__GLASGOW_HASKELL__) && MIN_VERSION_base(4,7,0)
 #define HAS_DATA_TYPE_EQUALITY 1
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 #endif
 
 -----------------------------------------------------------------------------
@@ -129,35 +128,40 @@ lift3' ab cd ef = lift3 ab `subst` lift2 cd `subst` lift ef
 
 #ifdef LANGUAGE_TypeFamilies
 # ifdef LANGUAGE_PolyKinds
-type family Inj  (f :: j -> k)           (a :: k) :: j
-type family Inj2 (f :: i -> j -> k)      (a :: k) :: i
-type family Inj3 (f :: h -> i -> j -> k) (a :: k) :: h
+type family GenInj  (f :: j -> k)           (g :: j -> k)             (x :: k) :: j
+type family GenInj2 (f :: i -> j -> k)      (g :: i -> j' -> k)       (x :: k) :: i
+type family GenInj3 (f :: h -> i -> j -> k) (g :: h -> i' -> j' -> k) (x :: k) :: h
 # else
-type family Inj  (f :: * -> *)           (a :: *) :: *
-type family Inj2 (f :: * -> * -> *)      (a :: *) :: *
-type family Inj3 (f :: * -> * -> * -> *) (a :: *) :: *
+type family GenInj  (f :: * -> *)           (g :: * -> *)           (x :: *) :: *
+type family GenInj2 (f :: * -> * -> *)      (g :: * -> * -> *)      (x :: *) :: *
+type family GenInj3 (f :: * -> * -> * -> *) (g :: * -> * -> * -> *) (x :: *) :: *
 # endif
 
-type instance Inj  f (f a)     = a
-type instance Inj2 f (f a b)   = a
-type instance Inj3 f (f a b c) = a
+type instance GenInj  f g (f a) = a
+type instance GenInj  f g (g b) = b
 
-newtype Lower  f a b = Lower  { unlower  :: Inj  f a := Inj  f b }
-newtype Lower2 f a b = Lower2 { unlower2 :: Inj2 f a := Inj2 f b }
-newtype Lower3 f a b = Lower3 { unlower3 :: Inj3 f a := Inj3 f b }
+type instance GenInj2 f g (f a c)  = a
+type instance GenInj2 f g (g b c') = b
 
--- | Type constructors are injective, so you can lower equality through any
--- type constructor ...
-lower :: forall a b f. f a := f b -> a := b
-lower eq = unlower (subst eq (Lower refl :: Lower f (f a) (f a)))
+type instance GenInj3 f g (f a c  d)  = a
+type instance GenInj3 f g (g b c' d') = b
+
+newtype Lower  f g a x = Lower  { unlower  :: a := GenInj  f g x }
+newtype Lower2 f g a x = Lower2 { unlower2 :: a := GenInj2 f g x }
+newtype Lower3 f g a x = Lower3 { unlower3 :: a := GenInj3 f g x }
+
+-- | Type constructors are generative and injective, so you can lower equality
+-- through any type constructors ...
+lower :: forall a b f g. f a := g b -> a := b
+lower eq = unlower (subst eq (Lower refl :: Lower f g a (f a)))
 
 -- | ... in any position ...
-lower2 :: forall a b c f. f a c := f b c -> a := b
-lower2 eq = unlower2 (subst eq (Lower2 refl :: Lower2 f (f a c) (f a c)))
+lower2 :: forall a b f g c c'. f a c := g b c' -> a := b
+lower2 eq = unlower2 (subst eq (Lower2 refl :: Lower2 f g a (f a c)))
 
 -- | ... these definitions are poly-kinded on GHC 7.6 and up.
-lower3 :: forall a b c d f. f a c d := f b c d -> a := b
-lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 f (f a c d) (f a c d)))
+lower3 :: forall a b f g c c' d d'. f a c d := g b c' d' -> a := b
+lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 f g a (f a c d)))
 #endif
 
 #ifdef HAS_DATA_TYPE_EQUALITY

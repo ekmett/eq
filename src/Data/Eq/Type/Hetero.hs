@@ -1,9 +1,11 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RoleAnnotations #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeInType #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -163,51 +165,64 @@ lift3 f = unlift3 $ hsubst f $ Lift3 refl
 lift3' :: a :== b -> c :== d -> e :== f -> g a c e :== g b d f
 lift3' ab cd ef = unpush $ unpush (lift3 ab `hsubst` Push (lift2 cd)) `hsubst` Push (lift ef)
 
-newtype Lower :: Type
-              -> forall j. j
-              -> forall k. k
+newtype Lower :: forall j1 j2 k1 k2.
+                 (j1 -> j2) -> (k1 -> k2)
+              -> forall j2'. j2' -> forall k2'. k2'
               -> Type where
-  Lower :: forall i j k (a :: j) (b :: k).
-           { unlower :: Inj i a :== Inj i (MassageKind j b) } -> Lower i a b
+  Lower :: { unlower :: a :== GenInj f g x } -> Lower f g a x
 
-type family Inj (j :: Type) (a :: k) :: j where
-  Inj j (f (a :: j)) = a
-  Inj _ _            = Any
+type family PickKind (f :: j1 -> j2) (g :: k1 -> k2) (x :: l) :: Type where
+  PickKind f _ (f (_ :: j1)) = j1
+  PickKind _ g (g (_ :: k1)) = k1
+  PickKind _ _ _             = Any
 
--- | Type constructors are injective, so you can lower equality through any type constructor.
-lower :: forall j k (f :: j -> k) (a :: j) (b :: j).
-         f a :== f b -> a :== b
-lower f = unlower $ hsubst f (Lower refl :: Lower j (f a) (f a))
+type family GenInj (f :: j1 -> j2) (g :: k1 -> k2) (x :: l) :: PickKind f g x where
+  GenInj f _ (f a) = a
+  GenInj _ g (g b) = b
+  GenInj _ _ _     = Any
 
-newtype Lower2 :: Type
-               -> forall j. j
-               -> forall k. k
+-- | Type constructors are generative and injective, so you can lower equality
+-- through any type constructors.
+lower :: forall a b f g. f a :== g b -> a :== b
+lower f = unlower $ hsubst f (Lower refl :: Lower f g a (f a))
+
+newtype Lower2 :: forall j1 j2 j3 k1 k2 k3.
+                  (j1 -> j2 -> j3) -> (k1 -> k2 -> k3)
+               -> forall j3'. j3' -> forall k3'. k3'
                -> Type where
-  Lower2 :: forall i j k (a :: j) (b :: k).
-            { unlower2 :: Inj2 i a :== Inj2 i (MassageKind j b) } -> Lower2 i a b
+  Lower2 :: { unlower2 :: a :== GenInj2 f g x } -> Lower2 f g a x
 
-type family Inj2 (j :: Type) (a :: k) :: j where
-  Inj2 j (f (a :: j) b) = a
-  Inj2 _ _              = Any
+type family PickKind2 (f :: j1 -> j2 -> j3) (g :: k1 -> k2 -> k3) (x :: l) :: Type where
+  PickKind2 f _ (f (_ :: j1) _) = j1
+  PickKind2 _ g (g (_ :: k1) _) = k1
+  PickKind2 _ _ _               = Any
 
-lower2 :: forall i j k (f :: i -> j -> k) (a :: i) (b :: i) (c :: j).
-          f a c :== f b c -> a :== b
-lower2 f = unlower2 $ hsubst f (Lower2 refl :: Lower2 i (f a c) (f a c))
+type family GenInj2 (f :: j1 -> j2 -> j3) (g :: k1 -> k2 -> k3) (x :: l) :: PickKind2 f g x where
+  GenInj2 f _ (f a _) = a
+  GenInj2 _ g (g b _) = b
+  GenInj2 _ _ _       = Any
 
-newtype Lower3 :: Type
-               -> forall j. j
-               -> forall k. k
+lower2 :: forall a b f g c c'. f a c :== g b c' -> a :== b
+lower2 f = unlower2 $ hsubst f (Lower2 refl :: Lower2 f g a (f a c))
+
+newtype Lower3 :: forall j1 j2 j3 j4 k1 k2 k3 k4.
+                  (j1 -> j2 -> j3 -> j4) -> (k1 -> k2 -> k3 -> k4)
+               -> forall j4'. j4' -> forall k4'. k4'
                -> Type where
-  Lower3 :: forall i j k (a :: j) (b :: k).
-            { unlower3 :: Inj3 i a :== Inj3 i (MassageKind j b) } -> Lower3 i a b
+  Lower3 :: { unlower3 :: a :== GenInj3 f g x } -> Lower3 f g a x
 
-type family Inj3 (j :: Type) (a :: k) :: j where
-  Inj3 j (f (a :: j) b c) = a
-  Inj3 _ _                = Any
+type family PickKind3 (f :: j1 -> j2 -> j3 -> j4) (g :: k1 -> k2 -> k3 -> k4) (x :: l) :: Type where
+  PickKind3 f _ (f (_ :: j1) _ _) = j1
+  PickKind3 _ g (g (_ :: k1) _ _) = k1
+  PickKind3 _ _ _                 = Any
 
-lower3 :: forall h i j k (f :: h -> i -> j -> k) (a :: h) (b :: h) (c :: i) (d :: j).
-          f a c d :== f b c d -> a :== b
-lower3 f = unlower3 $ hsubst f (Lower3 refl :: Lower3 h (f a c d) (f a c d))
+type family GenInj3 (f :: j1 -> j2 -> j3 -> j4) (g :: k1 -> k2 -> k3 -> k4) (x :: l) :: PickKind3 f g x where
+  GenInj3 f _ (f a _ _) = a
+  GenInj3 _ g (g b _ _) = b
+  GenInj3 _ _ _         = Any
+
+lower3 :: forall a b f g c c' d d'. f a c d :== g b c' d' -> a :== b
+lower3 f = unlower3 $ hsubst f (Lower3 refl :: Lower3 f g a (f a c d))
 
 newtype Flay :: forall j.
                 (j -> j -> Type) -> j
