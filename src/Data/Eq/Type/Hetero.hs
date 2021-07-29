@@ -63,7 +63,6 @@ import qualified Data.Type.Coercion as Co
 import qualified Data.Type.Equality as Eq
 import           Data.Kind
 import qualified Data.Eq.Type as ET
-import           GHC.Exts (Any)
 import           Prelude hiding (id, (.))
 
 infixl 4 :==
@@ -80,11 +79,8 @@ type role (:==) nominal nominal
 refl :: a :== a
 refl = HRefl id
 
-newtype Coerce (a :: k) = Coerce { uncoerce :: MassageKind Type a }
-
-type family MassageKind (j :: Type) (a :: k) :: j where
-  MassageKind j (a :: j) = a
-  MassageKind _ _        = Any
+data family Coerce :: forall k. k -> Type
+newtype instance Coerce (a :: Type) = Coerce { uncoerce :: a }
 
 -- | If two things are equal, you can convert one to the other.
 coerce :: a :== b -> a -> b
@@ -125,24 +121,22 @@ newtype Symm :: (forall j. j -> forall k. k -> Type)
 symm :: a :== b -> b :== a
 symm ab = unpush $ unsymm $ hsubst ab $ Symm $ Push refl
 
-newtype Lift :: forall j r.
-                (j -> r) -> j
-             -> forall k. k
-             -> Type where
-  Lift :: forall j r k (f :: j -> r) (a :: j) (b :: k).
-          { unlift :: f a :== f (MassageKind j b) } -> Lift f a b
+data family Lift :: forall j r. (j -> r) -> j
+                 -> forall k. k
+                 -> Type
+newtype instance Lift f (a :: j) (b :: j) =
+  Lift { unlift :: f a :== f b }
 
 -- | You can lift equality into any type constructor...
 lift :: a :== b -> f a :== f b
 lift f = unlift $ hsubst f $ Lift refl
 
-newtype Lift2 :: forall j1 j2 r.
-                 (j1 -> j2 -> r) -> j1 -> j2
-              -> forall k. k
-              -> Type where
-  Lift2 :: forall j1 j2 r k
-                  (f :: j1 -> j2 -> r) (a :: j1) (b :: k) (c :: j2).
-           { unlift2 :: f a c :== f (MassageKind j1 b) c } -> Lift2 f a c b
+data family Lift2 :: forall j1 j2 r.
+                     (j1 -> j2 -> r) -> j1 -> j2
+                  -> forall k. k
+                  -> Type
+newtype instance Lift2 f (a :: j1) (c :: j2) (b :: j1) =
+  Lift2 { unlift2 :: f a c :== f b c }
 
 -- | ... in any position.
 lift2 :: a :== b -> f a c :== f b c
@@ -151,13 +145,12 @@ lift2 f = unlift2 $ hsubst f $ Lift2 refl
 lift2' :: a :== b -> c :== d -> f a c :== f b d
 lift2' ab cd = unpush $ lift2 ab `hsubst` Push (lift cd)
 
-newtype Lift3 :: forall j1 j2 j3 r.
-                 (j1 -> j2 -> j3 -> r) -> j1 -> j2 -> j3
-              -> forall k. k
-              -> Type where
-  Lift3 :: forall j1 j2 j3 r k
-                  (f :: j1 -> j2 -> j3 -> r) (a :: j1) (b :: k) (c :: j2) (d :: j3).
-           { unlift3 :: f a c d :== f (MassageKind j1 b) c d } -> Lift3 f a c d b
+data family Lift3 :: forall j1 j2 j3 r.
+                     (j1 -> j2 -> j3 -> r) -> j1 -> j2 -> j3
+                  -> forall k. k
+                  -> Type
+newtype instance Lift3 f (a :: j1) (c :: j2) (d :: j3) (b :: j1) =
+  Lift3 { unlift3 :: f a c d :== f b c d }
 
 lift3 :: a :== b -> f a c d :== f b c d
 lift3 f = unlift3 $ hsubst f $ Lift3 refl
@@ -165,71 +158,37 @@ lift3 f = unlift3 $ hsubst f $ Lift3 refl
 lift3' :: a :== b -> c :== d -> e :== f -> g a c e :== g b d f
 lift3' ab cd ef = unpush $ unpush (lift3 ab `hsubst` Push (lift2 cd)) `hsubst` Push (lift ef)
 
-newtype Lower :: forall j1 j2 k1 k2.
-                 (j1 -> j2) -> (k1 -> k2)
-              -> forall j2'. j2' -> forall k2'. k2'
-              -> Type where
-  Lower :: { unlower :: a :== GenInj f g x } -> Lower f g a x
-
-type family PickKind (f :: j1 -> j2) (g :: k1 -> k2) (x :: l) :: Type where
-  PickKind f _ (f (_ :: j1)) = j1
-  PickKind _ g (g (_ :: k1)) = k1
-  PickKind _ _ _             = Any
-
-type family GenInj (f :: j1 -> j2) (g :: k1 -> k2) (x :: l) :: PickKind f g x where
-  GenInj f _ (f a) = a
-  GenInj _ g (g b) = b
-  GenInj _ _ _     = Any
+data family Lower :: forall j. j
+                  -> forall k. k
+                  -> Type
+newtype instance Lower a (f x) = Lower { unlower :: a :== x }
 
 -- | Type constructors are generative and injective, so you can lower equality
 -- through any type constructors.
 lower :: forall a b f g. f a :== g b -> a :== b
-lower f = unlower $ hsubst f (Lower refl :: Lower f g a (f a))
+lower f = unlower $ hsubst f (Lower refl :: Lower a (f a))
 
-newtype Lower2 :: forall j1 j2 j3 k1 k2 k3.
-                  (j1 -> j2 -> j3) -> (k1 -> k2 -> k3)
-               -> forall j3'. j3' -> forall k3'. k3'
-               -> Type where
-  Lower2 :: { unlower2 :: a :== GenInj2 f g x } -> Lower2 f g a x
-
-type family PickKind2 (f :: j1 -> j2 -> j3) (g :: k1 -> k2 -> k3) (x :: l) :: Type where
-  PickKind2 f _ (f (_ :: j1) _) = j1
-  PickKind2 _ g (g (_ :: k1) _) = k1
-  PickKind2 _ _ _               = Any
-
-type family GenInj2 (f :: j1 -> j2 -> j3) (g :: k1 -> k2 -> k3) (x :: l) :: PickKind2 f g x where
-  GenInj2 f _ (f a _) = a
-  GenInj2 _ g (g b _) = b
-  GenInj2 _ _ _       = Any
+data family Lower2 :: forall j. j
+                   -> forall k. k
+                   -> Type
+newtype instance Lower2 a (f x c) = Lower2 { unlower2 :: a :== x }
 
 lower2 :: forall a b f g c c'. f a c :== g b c' -> a :== b
-lower2 f = unlower2 $ hsubst f (Lower2 refl :: Lower2 f g a (f a c))
+lower2 f = unlower2 $ hsubst f (Lower2 refl :: Lower2 a (f a c))
 
-newtype Lower3 :: forall j1 j2 j3 j4 k1 k2 k3 k4.
-                  (j1 -> j2 -> j3 -> j4) -> (k1 -> k2 -> k3 -> k4)
-               -> forall j4'. j4' -> forall k4'. k4'
-               -> Type where
-  Lower3 :: { unlower3 :: a :== GenInj3 f g x } -> Lower3 f g a x
-
-type family PickKind3 (f :: j1 -> j2 -> j3 -> j4) (g :: k1 -> k2 -> k3 -> k4) (x :: l) :: Type where
-  PickKind3 f _ (f (_ :: j1) _ _) = j1
-  PickKind3 _ g (g (_ :: k1) _ _) = k1
-  PickKind3 _ _ _                 = Any
-
-type family GenInj3 (f :: j1 -> j2 -> j3 -> j4) (g :: k1 -> k2 -> k3 -> k4) (x :: l) :: PickKind3 f g x where
-  GenInj3 f _ (f a _ _) = a
-  GenInj3 _ g (g b _ _) = b
-  GenInj3 _ _ _         = Any
+data family Lower3 :: forall j. j
+                   -> forall k. k
+                   -> Type
+newtype instance Lower3 a (f x c d) = Lower3 { unlower3 :: a :== x }
 
 lower3 :: forall a b f g c c' d d'. f a c d :== g b c' d' -> a :== b
-lower3 f = unlower3 $ hsubst f (Lower3 refl :: Lower3 f g a (f a c d))
+lower3 f = unlower3 $ hsubst f (Lower3 refl :: Lower3 a (f a c d))
 
-newtype Flay :: forall j.
-                (j -> j -> Type) -> j
-             -> forall k. k
-             -> Type where
-  Flay :: forall j k (p :: j -> j -> Type) (a :: j) (b :: k).
-          { unflay :: p a (MassageKind j b) } -> Flay p a b
+data family Flay :: forall j.
+                    (j -> j -> Type) -> j
+                 -> forall k. k
+                 -> Type
+newtype instance Flay p (a :: j) (b :: j) = Flay { unflay :: p a b }
 
 -- | Convert an appropriately kinded heterogeneous Leibnizian equality into
 -- a homogeneous Leibnizian equality '(ET.:=)'.

@@ -128,6 +128,26 @@ lift3' ab cd ef = lift3 ab `subst` lift2 cd `subst` lift ef
 
 #ifdef LANGUAGE_TypeFamilies
 # ifdef LANGUAGE_PolyKinds
+-- This is all more complicated than it needs to be. Ideally, we would just
+-- write:
+--
+--   data family Lower (a :: j) (b :: k)
+--   newtype instance Lower a (f x) = Lower { unlower :: a := x }
+--
+--   lower :: forall a b f g. f a := g b -> a := b
+--   lower eq = unlower (subst eq (Lower refl :: Lower a (f a)))
+--
+-- And similarly for Lower{2,3}. Unfortunatetly, this won't typecheck on
+-- GHC 7.6 through 7.10 due to an old typechecker bug. To work around the
+-- issue, we must:
+--
+-- 1. Pass `f` and `g` as explicit arguments to the GenInj{,2,3} type family,
+--    and
+--
+-- 2. Define overlapping instances for GenInj{,2,3}.
+--
+-- Part (2) of this workaround prevents us from using a data family here, as
+-- GHC will reject overlapping data family instances as conflicting.
 type family GenInj  (f :: j -> k)           (g :: j -> k)             (x :: k) :: j
 type family GenInj2 (f :: i -> j -> k)      (g :: i -> j' -> k)       (x :: k) :: i
 type family GenInj3 (f :: h -> i -> j -> k) (g :: h -> i' -> j' -> k) (x :: k) :: h
