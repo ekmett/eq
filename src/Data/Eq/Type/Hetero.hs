@@ -5,7 +5,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeInType #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -207,7 +206,7 @@ toLeibniz :: a Eq.:~: b -> a :== b
 toLeibniz Eq.Refl = refl
 
 heteroFromLeibniz :: a :== b -> a Eq.:~~: b
-heteroFromLeibniz f = unpush $ hsubst f $ Push $ Eq.HRefl
+heteroFromLeibniz f = unpush $ hsubst f $ Push Eq.HRefl
 
 heteroToLeibniz :: a Eq.:~~: b -> a :== b
 heteroToLeibniz Eq.HRefl = refl
