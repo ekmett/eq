@@ -137,7 +137,7 @@ lift3' ab cd ef = lift3 ab `subst` lift2 cd `subst` lift ef
 --   lower :: forall a b f g. f a := g b -> a := b
 --   lower eq = unlower (subst eq (Lower refl :: Lower a (f a)))
 --
--- And similarly for Lower{2,3}. Unfortunatetly, this won't typecheck on
+-- And similarly for Lower{2,3}. Unfortunately, this won't typecheck on
 -- GHC 7.6 through 7.10 due to an old typechecker bug. To work around the
 -- issue, we must:
 --
