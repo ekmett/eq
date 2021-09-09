@@ -7,9 +7,9 @@
 {-# LANGUAGE RoleAnnotations #-}
 #endif
 #if defined(__GLASGOW_HASKELL__) && MIN_VERSION_base(4,7,0)
-#define HAS_DATA_TYPE_EQUALITY 1
-{-# LANGUAGE GADTs #-}
+#define HAS_DATA_TYPE_COERCION 1
 #endif
+{-# LANGUAGE GADTs #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -46,12 +46,12 @@ module Data.Eq.Type
   , lower2
   , lower3
 #endif
-#ifdef HAS_DATA_TYPE_EQUALITY
   -- * 'Eq.:~:' equivalence
   -- | "Data.Type.Equality" GADT definition is equivalent in power
   , fromLeibniz
   , toLeibniz
 
+#ifdef HAS_DATA_TYPE_COERCION
   -- * 'Co.Coercion' conversion
   -- | Leibnizian equality can be converted to representational equality
   , reprLeibniz
@@ -63,10 +63,10 @@ import Control.Category
 import Data.Semigroupoid
 import Data.Groupoid
 
-#ifdef HAS_DATA_TYPE_EQUALITY
+#ifdef HAS_DATA_TYPE_COERCION
 import qualified Data.Type.Coercion as Co
-import qualified Data.Type.Equality as Eq
 #endif
+import qualified Data.Type.Equality as Eq
 
 infixl 4 :=
 
@@ -184,7 +184,6 @@ lower3 :: forall a b f g c c' d d'. f a c d := g b c' d' -> a := b
 lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 f g a (f a c d)))
 #endif
 
-#ifdef HAS_DATA_TYPE_EQUALITY
 fromLeibniz :: a := b -> a Eq.:~: b
 fromLeibniz a = subst a Eq.Refl
 
@@ -194,6 +193,7 @@ toLeibniz Eq.Refl = refl
 instance Eq.TestEquality ((:=) a) where
   testEquality fa fb = Just (fromLeibniz (trans (symm fa) fb))
 
+#ifdef HAS_DATA_TYPE_COERCION
 reprLeibniz :: a := b -> Co.Coercion a b
 reprLeibniz a = subst a Co.Coercion
 
