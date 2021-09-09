@@ -40,12 +40,10 @@ module Data.Eq.Type
   , lift
   , lift2, lift2'
   , lift3, lift3'
-#ifdef LANGUAGE_TypeFamilies
   -- * Lowering equality
   , lower
   , lower2
   , lower3
-#endif
   -- * 'Eq.:~:' equivalence
   -- | "Data.Type.Equality" GADT definition is equivalent in power
   , fromLeibniz
@@ -126,8 +124,7 @@ lift3 a = unlift3 (subst a (Lift3 refl))
 lift3' :: a := b -> c := d -> e := f -> g a c e := g b d f
 lift3' ab cd ef = lift3 ab `subst` lift2 cd `subst` lift ef
 
-#ifdef LANGUAGE_TypeFamilies
-# ifdef LANGUAGE_PolyKinds
+#ifdef LANGUAGE_PolyKinds
 -- This is all more complicated than it needs to be. Ideally, we would just
 -- write:
 --
@@ -151,11 +148,11 @@ lift3' ab cd ef = lift3 ab `subst` lift2 cd `subst` lift ef
 type family GenInj  (f :: j -> k)           (g :: j -> k)             (x :: k) :: j
 type family GenInj2 (f :: i -> j -> k)      (g :: i -> j' -> k)       (x :: k) :: i
 type family GenInj3 (f :: h -> i -> j -> k) (g :: h -> i' -> j' -> k) (x :: k) :: h
-# else
+#else
 type family GenInj  (f :: * -> *)           (g :: * -> *)           (x :: *) :: *
 type family GenInj2 (f :: * -> * -> *)      (g :: * -> * -> *)      (x :: *) :: *
 type family GenInj3 (f :: * -> * -> * -> *) (g :: * -> * -> * -> *) (x :: *) :: *
-# endif
+#endif
 
 type instance GenInj  f g (f a) = a
 type instance GenInj  f g (g b) = b
@@ -182,7 +179,6 @@ lower2 eq = unlower2 (subst eq (Lower2 refl :: Lower2 f g a (f a c)))
 -- | ... these definitions are poly-kinded on GHC 7.6 and up.
 lower3 :: forall a b f g c c' d d'. f a c d := g b c' d' -> a := b
 lower3 eq = unlower3 (subst eq (Lower3 refl :: Lower3 f g a (f a c d)))
-#endif
 
 fromLeibniz :: a := b -> a Eq.:~: b
 fromLeibniz a = subst a Eq.Refl

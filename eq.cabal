@@ -44,15 +44,15 @@ library
     TypeOperators
 
   build-depends:
-    base          == 4.*,
+    base          >= 4.3 && <5,
     semigroupoids >= 4 && < 6
 
   exposed-modules:
     Data.Eq.Type
 
-  if impl(ghc >= 7.0)
-    default-extensions: TypeFamilies
-    cpp-options: -DLANGUAGE_TypeFamilies
+  -- We always have TypeFamilies, we don't support pre GHC-7 compilers.
+  -- TypeFamilies are needed to implement lower combinators.
+  default-extensions: TypeFamilies
 
   if impl(ghc >= 8.2)
     exposed-modules: Data.Eq.Type.Hetero
