@@ -36,6 +36,9 @@ module Data.Eq.Type
   , trans
   , symm
   , coerce
+#ifdef LANGUAGE_PolyKinds
+  , apply
+#endif
   -- * Lifting equality
   , lift
   , lift2, lift2'
@@ -85,6 +88,14 @@ newtype Coerce a = Coerce { uncoerce :: a }
 -- | If two things are equal you can convert one to the other
 coerce :: a := b -> a -> b
 coerce f = uncoerce . subst f . Coerce
+
+#ifdef LANGUAGE_PolyKinds
+newtype Apply a b f g = Apply { unapply :: f a := g b }
+
+-- | Apply one equality to another, respectively
+apply :: f := g -> a := b -> f a := g b
+apply fg ab = unapply (subst fg (Apply (lift ab)))
+#endif
 
 -- | Equality forms a category
 instance Category (:=) where
