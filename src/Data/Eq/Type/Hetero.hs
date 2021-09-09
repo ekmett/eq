@@ -30,6 +30,7 @@ module Data.Eq.Type.Hetero
   , trans
   , symm
   , coerce
+  , apply
   -- * Lifting equality
   , lift
   , lift2, lift2'
@@ -84,6 +85,30 @@ newtype instance Coerce (a :: Type) = Coerce { uncoerce :: a }
 -- | If two things are equal, you can convert one to the other.
 coerce :: a :== b -> a -> b
 coerce f = uncoerce . hsubst f . Coerce
+
+newtype Pair1 :: forall j1 k1 j2.
+                 j1 -> k1 -> j2
+              -> forall k2. k2 -> Type where
+  Pair1 :: { unpair1 :: '(a1, a2) :== '(b1, b2) } -> Pair1 a1 b1 a2 b2
+
+newtype Pair2 :: forall j2 k2 j1.
+                 j2 -> k2 -> j1
+              -> forall k1. k1 -> Type where
+  Pair2 :: { unpair2 :: '(a1, a2) :== '(b1, b2) } -> Pair2 a2 b2 a1 b1
+
+-- | Lift two equalities pairwise.
+pair :: a1 :== b1 -> a2 :== b2 -> '(a1, a2) :== '(b1, b2)
+pair ab1 ab2 = unpair2 $ hsubst ab1 $ Pair2 $ unpair1 $ hsubst ab2 $ Pair1 refl
+
+data family Apply :: forall j1 j2.
+                     (j1 -> j2) -> j1
+                  -> forall k. k -> Type
+newtype instance Apply (f :: j1 -> j2) (a :: j1) '((g :: k1 -> k2), (b :: k1))
+  = Apply { unapply :: f a :== g b }
+
+-- | Apply one equality to another, respectively
+apply :: f :== g -> a :== b -> f a :== g b
+apply fg ab = unapply $ hsubst (pair fg ab) $ Apply refl
 
 newtype Push :: (forall j k. j -> k -> Type)
              -> forall j. j -> forall k. k -> Type where
