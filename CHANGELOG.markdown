@@ -17,7 +17,7 @@
   analogously.
 * `Data.Eq.Type.Hetero.lower{,2,3}` now have the same order of type variables
   as their counterparts in `Data.Eq.Type`.
-* Add an `apply` function to `Data.Eq.Type`.
+* Add an `apply` function to `Data.Eq.Type` and `Data.Eq.Type.Hetero`.
 * Drop support for pre-7.0 versions of GHC.
 
 4.2.1 [2020.10.01]
