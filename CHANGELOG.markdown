@@ -1,4 +1,4 @@
-4.3 [????.??.??]
+4.3 [2021.10.31]
 ----------------
 * Generalize the types of `Data.Eq.Type.lower{,2,3}`:
 
